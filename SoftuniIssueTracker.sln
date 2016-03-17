@@ -3,9 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SIT.Data", "SoftuniIssueTracker.Data\SIT.Data.csproj", "{514A136C-F18B-4CE2-8B0D-5AB04118CD4C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SIT.Web", "SIT.Web\SIT.Web.csproj", "{8772AD8F-8A7B-4525-A5A7-8C601005F54F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftuniIssueTracker.Data", "SoftuniIssueTracker.Data\SoftuniIssueTracker.Data.csproj", "{514A136C-F18B-4CE2-8B0D-5AB04118CD4C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +15,6 @@ Global
 		{514A136C-F18B-4CE2-8B0D-5AB04118CD4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{514A136C-F18B-4CE2-8B0D-5AB04118CD4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{514A136C-F18B-4CE2-8B0D-5AB04118CD4C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8772AD8F-8A7B-4525-A5A7-8C601005F54F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8772AD8F-8A7B-4525-A5A7-8C601005F54F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8772AD8F-8A7B-4525-A5A7-8C601005F54F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8772AD8F-8A7B-4525-A5A7-8C601005F54F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,7 +1,8 @@
-﻿namespace SIT.Data.Models
+﻿namespace SoftuniIssueTracker.Data.Models
 {
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
+    using System.Linq;
 
     public class Project
     {

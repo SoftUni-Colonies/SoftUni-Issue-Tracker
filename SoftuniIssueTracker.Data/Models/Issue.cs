@@ -1,4 +1,4 @@
-﻿namespace SIT.Data.Models
+﻿namespace SoftuniIssueTracker.Data.Models
 {
     using System;
     using System.Collections.Generic;

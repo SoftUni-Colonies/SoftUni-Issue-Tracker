@@ -1,4 +1,4 @@
-﻿namespace SIT.Data.Models
+﻿namespace SoftuniIssueTracker.Data.Models
 {
     public class StatusTransition
     {
