@@ -1,4 +1,4 @@
-namespace SoftuniIssueTracker.Data.Migrations
+namespace SIT.Data.Migrations
 {
     using System.Data.Entity.Migrations;
 

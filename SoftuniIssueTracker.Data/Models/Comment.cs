@@ -1,4 +1,4 @@
-﻿namespace SoftuniIssueTracker.Data.Models
+﻿namespace SIT.Data.Models
 {
     using System;
     using System.ComponentModel.DataAnnotations;

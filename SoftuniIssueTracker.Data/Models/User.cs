@@ -1,4 +1,4 @@
-﻿namespace SoftuniIssueTracker.Data.Models
+﻿namespace SIT.Data.Models
 {
     using System.Collections.Generic;
     using System.Security.Claims;
@@ -45,9 +45,16 @@
             set { this.comments = value; }
         }
 
-        public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<User> manager)
+        public async Task<ClaimsIdentity> GenerateUserIdentityAsync(
+            UserManager<User> manager, string authenticationType)
         {
-            var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
+            // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
+            var userIdentity = await manager.CreateIdentityAsync(this, authenticationType);
+
+            userIdentity.AddClaim(new Claim(ClaimTypes.Name, userIdentity.Name));
+            userIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, this.Id));
+
+            // Add custom user claims here
             return userIdentity;
         }
     }
