@@ -119,7 +119,7 @@ namespace SIT.Web.Controllers
                     _logger.LogInformation(3, "User created a new account with password.");
 
                     //TODO: change redirect url
-                    return RedirectToAction(nameof(ProjectsController.GetProjects), "Home");
+                    return RedirectToAction(nameof(ProjectsController.Get), "Home");
                 }
                 AddErrors(result);
             }
@@ -138,7 +138,7 @@ namespace SIT.Web.Controllers
             _logger.LogInformation(4, "User logged out.");
 
             //TODO: change redirect url
-            return RedirectToAction(nameof(ProjectsController.GetProjects), "Home");
+            return RedirectToAction(nameof(ProjectsController.Get), "Home");
         }
 
         //
@@ -464,7 +464,7 @@ namespace SIT.Web.Controllers
             else
             {
                 //TODO: Change redirect url
-                return RedirectToAction(nameof(ProjectsController.GetProjects), "Home");
+                return RedirectToAction(nameof(ProjectsController.Get), "Home");
             }
         }
 
