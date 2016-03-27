@@ -13,7 +13,8 @@ namespace SIT.Data.Repositories
         private ApplicationDbContext context;
         private UserRepository<User> userRepository;
         private EntityRepository<Project> projectRepository;
-        private EntityRepository<ProjectLabel> projectLabelRepository;
+        private EntityRepository<ProjectLabel> projectLabelsRepository;
+        private EntityRepository<ProjectPriority> projectPrioritiesRepository;
         private EntityRepository<Comment> commentRepository;
         private EntityRepository<Issue> issueRepository;
         private EntityRepository<Label> labelRepository;
@@ -27,8 +28,9 @@ namespace SIT.Data.Repositories
             this.context = dbContext;
         }
 
+        public EntityRepository<ProjectLabel> ProjectLabelsRepository => this.GetRepository(ref this.projectLabelsRepository);
+        public EntityRepository<ProjectPriority> ProjectPrioritiesRepository => this.GetRepository(ref this.projectPrioritiesRepository);
         public EntityRepository<Project> ProjectRepository => this.GetRepository(ref this.projectRepository);
-        public EntityRepository<ProjectLabel> ProjectLabelRepository => this.GetRepository(ref this.projectLabelRepository);
         public EntityRepository<Comment> CommentRepository => this.GetRepository(ref this.commentRepository);
         public EntityRepository<Issue> IssueRepository => this.GetRepository(ref this.issueRepository);
         public EntityRepository<Label> LabelRepository => this.GetRepository(ref this.labelRepository);

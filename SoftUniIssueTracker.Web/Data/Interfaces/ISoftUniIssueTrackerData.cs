@@ -6,7 +6,8 @@ namespace SIT.Data.Interfaces
     public interface ISoftUniIssueTrackerData
     {
         EntityRepository<Project> ProjectRepository { get; }
-        EntityRepository<ProjectLabel> ProjectLabelRepository { get; }
+        EntityRepository<ProjectLabel> ProjectLabelsRepository { get; }
+        EntityRepository<ProjectPriority> ProjectPrioritiesRepository { get; }
         EntityRepository<Comment> CommentRepository { get; }
         EntityRepository<Issue> IssueRepository { get; }
         EntityRepository<Label> LabelRepository { get; }

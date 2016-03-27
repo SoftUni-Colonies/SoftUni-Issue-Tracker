@@ -11,7 +11,9 @@ namespace SIT.Web.BindingModels
         public string Name { get; set; }
         public string Description { get; set; }
         public string ProjectKey { get; set; }
+        public string LeadId { get; set; }
         public int? TransitionSchemeId { get; set; }
         public List<Label> Labels { get; set; } 
+        public List<Priority> Priorities { get; set; } 
     }
 }

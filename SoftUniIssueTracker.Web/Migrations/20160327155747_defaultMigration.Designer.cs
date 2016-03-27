@@ -8,7 +8,7 @@ using SIT.Data;
 namespace SoftUniIssueTracker.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20160326160850_defaultMigration")]
+    [Migration("20160327155747_defaultMigration")]
     partial class defaultMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -149,13 +149,14 @@ namespace SoftUniIssueTracker.Web.Migrations
 
             modelBuilder.Entity("SIT.Models.IssueLabel", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
                     b.Property<int>("IssueId");
 
                     b.Property<int>("LabelId");
 
-                    b.Property<int>("Id");
-
-                    b.HasKey("IssueId", "LabelId");
+                    b.HasKey("Id");
                 });
 
             modelBuilder.Entity("SIT.Models.Label", b =>
@@ -203,24 +204,26 @@ namespace SoftUniIssueTracker.Web.Migrations
 
             modelBuilder.Entity("SIT.Models.ProjectLabel", b =>
                 {
-                    b.Property<int>("ProjectId");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<int>("LabelId");
 
-                    b.Property<int>("Id");
+                    b.Property<int>("ProjectId");
 
-                    b.HasKey("ProjectId", "LabelId");
+                    b.HasKey("Id");
                 });
 
             modelBuilder.Entity("SIT.Models.ProjectPriority", b =>
                 {
-                    b.Property<int>("ProjectId");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<int>("PriorityId");
 
-                    b.Property<int>("Id");
+                    b.Property<int>("ProjectId");
 
-                    b.HasKey("ProjectId", "PriorityId");
+                    b.HasKey("Id");
                 });
 
             modelBuilder.Entity("SIT.Models.Status", b =>

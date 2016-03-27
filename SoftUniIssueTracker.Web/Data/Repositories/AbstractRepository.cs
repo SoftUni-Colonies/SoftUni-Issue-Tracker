@@ -21,10 +21,9 @@ namespace SIT.Data.Repositories
             this.dbSet = context.Set<T>();
         }
 
-        public virtual IEnumerable<T> Get(
+        public virtual IQueryable<T> Get(
             Expression<Func<T, bool>> filter = null,
-            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-            string includeProperties = "")
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null)
         {
             IQueryable<T> query = dbSet;
 
@@ -33,25 +32,20 @@ namespace SIT.Data.Repositories
                 query = query.Where(filter);
             }
 
-            foreach (var includeProperty in includeProperties.Split
-                (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                query = query.Include(t => includeProperty);
-            }
-
             if (orderBy != null)
             {
-                return orderBy(query).ToList();
+                return orderBy(query);
             }
             else
             {
-                return query.ToList();
+                return query;
             }
         }
 
-        public virtual T GetById(TIdentificator id)
+        public virtual IQueryable<T> GetById(TIdentificator id, Expression<Func<T, bool>> filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null)
         {
-            return dbSet.FirstOrDefault(t => t.Id.Equals(id));
+            return this.Get().Where(p => p.Id.Equals(id));
         }
 
         public virtual void Insert(T entity)
@@ -61,7 +55,7 @@ namespace SIT.Data.Repositories
 
         public virtual void Delete(TIdentificator id)
         {
-            T entityToDelete = this.GetById(id);
+            T entityToDelete = this.GetById(id).FirstOrDefault();
             Delete(entityToDelete);
         }
 

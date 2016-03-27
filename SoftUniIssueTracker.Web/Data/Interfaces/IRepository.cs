@@ -9,9 +9,10 @@ namespace SIT.Data.Interfaces
 {
     public interface IRepository<TEntity, in TIdentificator> where TEntity : IDentificatable<TIdentificator>
     {
-        IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> filter,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy, string includeProperties);
-        TEntity GetById(TIdentificator id);
+        IQueryable<TEntity> Get(Expression<Func<TEntity, bool>> filter,
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy);
+        IQueryable<TEntity> GetById(TIdentificator id, Expression<Func<TEntity, bool>> filter,
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy);
         void Insert(TEntity entity);
         void Delete(TEntity entity);
         void Update(TEntity entity);

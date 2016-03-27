@@ -6,14 +6,26 @@ using System.Threading.Tasks;
 using Microsoft.AspNet.Mvc;
 using Microsoft.AspNet.Mvc.Infrastructure;
 using SIT.Data;
+using SIT.Data.Interfaces;
 using SIT.Models;
 using SIT.Web.BindingModels;
+using SIT.Web.Services;
+using SIT.Web.Services.Interfaces;
 
 namespace SIT.Web.Controllers
 {
+    [Route("projects/")]
     public class ProjectsController : BaseController
     {
+        private IProjectsService projectsService;
+
+        public ProjectsController(IProjectsService projectsService)
+        {
+            this.projectsService = projectsService;
+        }
+
         [HttpPost]
+        [Route("")]
         public IActionResult Add(ProjectBindingModel model)
         {
             if (!ModelState.IsValid)
@@ -21,73 +33,46 @@ namespace SIT.Web.Controllers
                 return this.HttpBadRequest(ModelState);
             }
 
-            var project = new Project()
+            try
             {
-                Name = model.Name,
-                Description = model.Description,
-                LeadId = this.userId,
-                ProjectKey = model.ProjectKey,
-            };
-
-            if (model.TransitionSchemeId != null)
-            {
-                project.TransitionSchemeId = model.TransitionSchemeId.Value;
+                this.projectsService.Add(model);
+                return new HttpOkResult();
             }
-            else
+            catch (Exception e)
             {
-                var transitionScheme = new TransitionScheme()
-                {
-                    Name = model.Name + " transition scheme"
-                };
-
-                this.data.TransitionSchemeRepository.Insert(transitionScheme);
-                project.TransitionScheme = transitionScheme;
+                return new BadRequestObjectResult(e.Message);
             }
-            foreach (var label in model.Labels)
-            {
-                var labelEntity = this.data.LabelRepository.Get(l => l.Name == label.Name).FirstOrDefault();
-                if (labelEntity == null)
-                {
-                    labelEntity = new Label()
-                    {
-                        Name = label.Name
-                    };
-                    this.data.LabelRepository.Insert(labelEntity);
-                }
-
-                var projectLabel = new ProjectLabel()
-                {
-                    Label = labelEntity,
-                    Project = project
-                };
-                this.data.ProjectLabelRepository.Insert(projectLabel);
-
-                project.ProjectLabels.Add(projectLabel);
-            }
-
-            this.data.ProjectRepository.Insert(project);
-
-            this.data.Save();
-            return new HttpOkResult();
-            return CreatedAtRoute("GetProject", new { controller = "Projects", id = project.Id });
         }
 
+        [HttpPut]
+        [Route("{id}")]
+        public IActionResult Edit(int id, ProjectBindingModel model)
+        {
+            try
+            {
+                this.projectsService.Edit(id, model);
+                return new HttpOkResult();
+            }
+            catch (Exception e)
+            {
+                return new BadRequestObjectResult(e.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("")]
         public IActionResult Get()
         {
-            var projects = this.data.ProjectRepository.Get();
+            var projects = this.projectsService.Get();
             return new JsonResult(projects);
         }
 
+        [HttpGet]
+        [Route("{id}")]
         public IActionResult Get(int id)
         {
-            var project = this.data.ProjectRepository.GetById(id);
+            var project = this.projectsService.GetById(id);
             return new JsonResult(project);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            this.data.Dispose();
-            base.Dispose(disposing);
         }
     }
 }

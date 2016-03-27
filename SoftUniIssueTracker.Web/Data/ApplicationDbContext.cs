@@ -20,8 +20,6 @@ namespace SIT.Data
 
     public class ApplicationDbContext : IdentityDbContext<User>
     {
-        private readonly string _connectionString;
-
         public DbSet<Project> Projects { get; set; }
         public DbSet<Issue> Issues { get; set; }
         public DbSet<Comment> Comments { get; set; }
@@ -38,9 +36,9 @@ namespace SIT.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<ProjectLabel>().HasKey(x => new {x.ProjectId, x.LabelId});
-            builder.Entity<IssueLabel>().HasKey(x => new {x.IssueId, x.LabelId});
-            builder.Entity<ProjectPriority>().HasKey(x => new {x.ProjectId, x.PriorityId});
+            //builder.Entity<ProjectLabel>().HasKey(x => new {x.ProjectId, x.LabelId});
+            //builder.Entity<IssueLabel>().HasKey(x => new {x.IssueId, x.LabelId});
+            //builder.Entity<ProjectPriority>().HasKey(x => new {x.ProjectId, x.PriorityId});
 
             foreach (var relationship in builder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
             {

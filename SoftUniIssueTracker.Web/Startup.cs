@@ -12,6 +12,9 @@ using Microsoft.Extensions.Logging;
 using SIT.Models;
 using SIT.Web.Services;
 using SIT.Data;
+using SIT.Data.Interfaces;
+using SIT.Data.Repositories;
+using SIT.Web.Services.Interfaces;
 
 namespace SIT.Web
 {
@@ -60,6 +63,9 @@ namespace SIT.Web
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
+            services.AddTransient<ISoftUniIssueTrackerData, SoftUniIssueTrackerData>();
+            services.AddTransient<IProjectsService, ProjectsService>();
+            services.AddTransient<ProjectsService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

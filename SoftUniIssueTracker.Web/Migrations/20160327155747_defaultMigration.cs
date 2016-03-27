@@ -290,13 +290,14 @@ namespace SoftUniIssueTracker.Web.Migrations
                 name: "ProjectLabel",
                 columns: table => new
                 {
-                    ProjectId = table.Column<int>(nullable: false),
-                    LabelId = table.Column<int>(nullable: false),
                     Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    LabelId = table.Column<int>(nullable: false),
+                    ProjectId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProjectLabel", x => new { x.ProjectId, x.LabelId });
+                    table.PrimaryKey("PK_ProjectLabel", x => x.Id);
                     table.ForeignKey(
                         name: "FK_ProjectLabel_Label_LabelId",
                         column: x => x.LabelId,
@@ -314,13 +315,14 @@ namespace SoftUniIssueTracker.Web.Migrations
                 name: "ProjectPriority",
                 columns: table => new
                 {
-                    ProjectId = table.Column<int>(nullable: false),
-                    PriorityId = table.Column<int>(nullable: false),
                     Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    PriorityId = table.Column<int>(nullable: false),
+                    ProjectId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProjectPriority", x => new { x.ProjectId, x.PriorityId });
+                    table.PrimaryKey("PK_ProjectPriority", x => x.Id);
                     table.ForeignKey(
                         name: "FK_ProjectPriority_Priority_PriorityId",
                         column: x => x.PriorityId,
@@ -365,13 +367,14 @@ namespace SoftUniIssueTracker.Web.Migrations
                 name: "IssueLabel",
                 columns: table => new
                 {
-                    IssueId = table.Column<int>(nullable: false),
-                    LabelId = table.Column<int>(nullable: false),
                     Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    IssueId = table.Column<int>(nullable: false),
+                    LabelId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IssueLabel", x => new { x.IssueId, x.LabelId });
+                    table.PrimaryKey("PK_IssueLabel", x => x.Id);
                     table.ForeignKey(
                         name: "FK_IssueLabel_Issue_IssueId",
                         column: x => x.IssueId,
