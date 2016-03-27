@@ -1,16 +1,18 @@
-﻿namespace SIT.Models
+﻿using SIT.Data.Interfaces;
+
+namespace SIT.Models
 {
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
 
-    public class Label
+    public class Label : IDentificatable<int>
     {
-        private ICollection<Project> projects;
-        private ICollection<Issue> issues; 
+        private ICollection<ProjectLabel> projectLabels;
+        private ICollection<IssueLabel> issueLabels; 
 
         public Label()
         {
-            this.projects = new HashSet<Project>();
+            this.projectLabels = new HashSet<ProjectLabel>();
         }
 
         [Key]
@@ -19,16 +21,16 @@
         [Required]
         public string Name { get; set; }
 
-        public virtual ICollection<Project> Projects
+        public virtual ICollection<ProjectLabel> Projects
         {
-            get { return this.projects; }
-            set { this.projects = value; }
+            get { return this.projectLabels; }
+            set { this.projectLabels = value; }
         }
 
-        public virtual ICollection<Issue> Issues
+        public virtual ICollection<IssueLabel> Issues
         {
-            get { return this.issues; }
-            set { this.issues = value; }
+            get { return this.issueLabels; }
+            set { this.issueLabels = value; }
         } 
     }
 }

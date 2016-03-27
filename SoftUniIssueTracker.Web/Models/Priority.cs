@@ -1,16 +1,18 @@
-﻿namespace SIT.Models
+﻿using SIT.Data.Interfaces;
+
+namespace SIT.Models
 {
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
 
-    public class Priority
+    public class Priority : IDentificatable<int>
     {
-        private ICollection<Project> projects;
+        private ICollection<ProjectPriority> projectPriorities;
         private ICollection<Issue> issues; 
 
         public Priority()
         {
-            this.projects = new HashSet<Project>();
+            this.projectPriorities = new HashSet<ProjectPriority>();
             this.issues = new HashSet<Issue>();
         }
 
@@ -20,10 +22,10 @@
         [Required]
         public string Name { get; set; }
 
-        public virtual ICollection<Project> Projects
+        public virtual ICollection<ProjectPriority> Projects
         {
-            get { return this.projects; }
-            set { this.projects = value; }
+            get { return this.projectPriorities; }
+            set { this.projectPriorities = value; }
         }
 
         public virtual ICollection<Issue> Issues

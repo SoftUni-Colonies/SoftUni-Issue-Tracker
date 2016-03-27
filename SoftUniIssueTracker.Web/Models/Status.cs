@@ -1,9 +1,12 @@
-﻿namespace SIT.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using SIT.Data.Interfaces;
+
+namespace SIT.Models
 {
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
 
-    public class Status
+    public class Status : IDentificatable<int>
     {
         private ICollection<Issue> issues;
         private ICollection<StatusTransition> childStatuses;
@@ -11,9 +14,8 @@
 
         public Status()
         {
-            this.issues= new HashSet<Issue>();
-            this.childStatuses = new HashSet<StatusTransition>();
-            this.parentStatuses = new HashSet<StatusTransition>();
+            this.issues = new HashSet<Issue>();
+
         }
 
         [Key]
@@ -27,12 +29,14 @@
             set { this.issues = value; }
         }
 
+        [InverseProperty("ChildStatus")]
         public virtual ICollection<StatusTransition> ChildStatuses
         {
             get { return this.childStatuses; }
             set { this.childStatuses = value; }
         }
 
+        [InverseProperty("ParentStatus")]
         public virtual ICollection<StatusTransition> ParentStatuses
         {
             get { return this.parentStatuses; }

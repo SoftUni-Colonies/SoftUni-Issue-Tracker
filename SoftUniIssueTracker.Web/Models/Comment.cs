@@ -1,9 +1,11 @@
-﻿namespace SIT.Models
+﻿using SIT.Data.Interfaces;
+
+namespace SIT.Models
 {
     using System;
     using System.ComponentModel.DataAnnotations;
 
-    public class Comment
+    public class Comment : IDentificatable<int>
     {
         [Key]
         public int Id { get; set; } 

@@ -1,6 +1,8 @@
-﻿namespace SIT.Models
+﻿using SIT.Data.Interfaces;
+
+namespace SIT.Models
 {
-    public class StatusTransition
+    public class StatusTransition : IDentificatable<int>
     {
         public int Id { get; set; }
         

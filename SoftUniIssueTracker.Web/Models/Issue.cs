@@ -1,17 +1,19 @@
-﻿namespace SIT.Models
+﻿using SIT.Data.Interfaces;
+
+namespace SIT.Models
 {
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
 
-    public class Issue
+    public class Issue : IDentificatable<int>
     {
-        private ICollection<Label> labels;
+        private ICollection<IssueLabel> issueLabels;
         private ICollection<Comment> comments;
 
         public Issue()
         {
-            this.labels = new HashSet<Label>();
+            this.issueLabels = new HashSet<IssueLabel>();
             this.comments = new HashSet<Comment>();
         }
 
@@ -51,10 +53,10 @@
 
         public virtual Status Status { get; set; }
 
-        public virtual ICollection<Label> Labels
+        public virtual ICollection<IssueLabel> Labels
         {
-            get { return this.labels; }
-            set { this.labels = value; }
+            get { return this.issueLabels; }
+            set { this.issueLabels = value; }
         }
 
         public virtual ICollection<Comment> Comments

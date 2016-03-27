@@ -1,19 +1,21 @@
-﻿namespace SIT.Models
+﻿using SIT.Data.Interfaces;
+
+namespace SIT.Models
 {
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.Linq;
 
-    public class Project
+    public class Project : IDentificatable<int>
     {
-        private ICollection<Priority> priorities;
-        private ICollection<Label> labels;
+        private ICollection<ProjectPriority> projectPriorities;
+        private ICollection<ProjectLabel> projectLabels;
         private ICollection<Issue> issues;
 
         public Project()
         {
-            this.priorities = new HashSet<Priority>();
-            this.labels = new HashSet<Label>();
+            this.projectPriorities = new HashSet<ProjectPriority>();
+            this.projectLabels = new HashSet<ProjectLabel>();
             this.issues = new HashSet<Issue>();
         }
 
@@ -33,20 +35,20 @@
 
         public virtual User Lead { get; set; }
 
-        public int SchemeId { get; set; }
+        public int TransitionSchemeId { get; set; }
 
         public virtual TransitionScheme TransitionScheme { get; set; }
 
-        public virtual ICollection<Priority> Priorities
+        public virtual ICollection<ProjectPriority> ProjectPriorities
         {
-            get { return this.priorities; }
-            set { this.priorities = value; }
+            get { return this.projectPriorities; }
+            set { this.projectPriorities = value; }
         }
 
-        public virtual ICollection<Label> Labels
+        public virtual ICollection<ProjectLabel> ProjectLabels
         {
-            get { return this.labels; }
-            set { this.labels = value; }
+            get { return this.projectLabels; }
+            set { this.projectLabels = value; }
         }
 
         public virtual ICollection<Issue> Issues

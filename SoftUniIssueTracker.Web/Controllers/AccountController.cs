@@ -80,6 +80,7 @@ namespace SIT.Web.Controllers
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return View(model);
                 }
+
             }
 
             // If we got this far, something failed, redisplay form
@@ -116,7 +117,9 @@ namespace SIT.Web.Controllers
                     //    "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>");
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     _logger.LogInformation(3, "User created a new account with password.");
-                    return RedirectToAction(nameof(HomeController.Index), "Home");
+
+                    //TODO: change redirect url
+                    return RedirectToAction(nameof(ProjectsController.GetProjects), "Home");
                 }
                 AddErrors(result);
             }
@@ -133,7 +136,9 @@ namespace SIT.Web.Controllers
         {
             await _signInManager.SignOutAsync();
             _logger.LogInformation(4, "User logged out.");
-            return RedirectToAction(nameof(HomeController.Index), "Home");
+
+            //TODO: change redirect url
+            return RedirectToAction(nameof(ProjectsController.GetProjects), "Home");
         }
 
         //
@@ -458,7 +463,8 @@ namespace SIT.Web.Controllers
             }
             else
             {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                //TODO: Change redirect url
+                return RedirectToAction(nameof(ProjectsController.GetProjects), "Home");
             }
         }
 
