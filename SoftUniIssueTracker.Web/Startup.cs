@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.Mvc.ModelBinding;
 using Microsoft.Data.Entity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,12 +22,19 @@ namespace SIT.Web
 {
     public class Startup
     {
+        private MapperConfiguration _mapperConfiguration { get; set; }
+
         public Startup(IHostingEnvironment env)
         {
             // Set up configuration sources.
             var builder = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
+
+            _mapperConfiguration = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new AutoMapperProfileConfiguration());
+            });
 
             if (env.IsDevelopment())
             {
@@ -58,14 +67,20 @@ namespace SIT.Web
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddMvc();
+            services.AddMvc(m =>
+            {
+                //m.ModelBinders[typeof(DateTime)] = new DateAndTimeModelBinder()
+            });
 
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
             services.AddTransient<ISoftUniIssueTrackerData, SoftUniIssueTrackerData>();
             services.AddTransient<IProjectsService, ProjectsService>();
-            services.AddTransient<ProjectsService>();
+            services.AddTransient<IIssuesService, IssuesService>();
+            services.AddTransient<ITransitionSchemeService, TransitionSchemesService>();
+            services.AddSingleton<IMapper>(sp => _mapperConfiguration.CreateMapper());
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -14,6 +14,7 @@ namespace SIT.Data.Repositories
         private UserRepository<User> userRepository;
         private EntityRepository<Project> projectRepository;
         private EntityRepository<ProjectLabel> projectLabelsRepository;
+        private EntityRepository<IssueLabel> issueLabelsRepository;
         private EntityRepository<ProjectPriority> projectPrioritiesRepository;
         private EntityRepository<Comment> commentRepository;
         private EntityRepository<Issue> issueRepository;
@@ -28,11 +29,25 @@ namespace SIT.Data.Repositories
             this.context = dbContext;
         }
 
+        public UserRepository<User> UserRepository
+        {
+            get
+            {
+                if (this.userRepository == null)
+                {
+                    this.userRepository = new UserRepository<User>(this.context);
+                }
+                return this.userRepository;
+            }
+        }
+
+
         public EntityRepository<ProjectLabel> ProjectLabelsRepository => this.GetRepository(ref this.projectLabelsRepository);
         public EntityRepository<ProjectPriority> ProjectPrioritiesRepository => this.GetRepository(ref this.projectPrioritiesRepository);
         public EntityRepository<Project> ProjectRepository => this.GetRepository(ref this.projectRepository);
         public EntityRepository<Comment> CommentRepository => this.GetRepository(ref this.commentRepository);
         public EntityRepository<Issue> IssueRepository => this.GetRepository(ref this.issueRepository);
+        public EntityRepository<IssueLabel> IssueLabelsRepository => this.GetRepository(ref this.issueLabelsRepository);
         public EntityRepository<Label> LabelRepository => this.GetRepository(ref this.labelRepository);
         public EntityRepository<Priority> PriorityRepository => this.GetRepository(ref this.priorityRepository);
         public EntityRepository<Status> StatusRepository => this.GetRepository(ref this.statusRepository);

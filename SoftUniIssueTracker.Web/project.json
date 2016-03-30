@@ -29,7 +29,8 @@
     "Microsoft.Framework.Configuration": "1.0.0-beta7",
     "Microsoft.Framework.Configuration.Json": "1.0.0-*",
     "Newtonsoft.Json": "8.0.3",
-    "IdentityServer4": "1.0.0-beta1-update1"
+    "IdentityServer4": "1.0.0-beta1-update1",
+    "AutoMapper": "4.2.1"
   },
 
   "commands": {
@@ -40,13 +41,10 @@
   "frameworks": {
     "dnx451": {
       "dependencies": {
+        "System.Linq.Dynamic": "1.0.6"
       },
       "frameworkAssemblies": {
         "System.configuration": "4.0.0.0"
-      }
-    },
-    "dnxcore50": {
-      "dependencies": {
       }
     }
   },

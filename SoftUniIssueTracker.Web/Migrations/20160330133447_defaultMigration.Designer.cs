@@ -8,7 +8,7 @@ using SIT.Data;
 namespace SoftUniIssueTracker.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20160327155747_defaultMigration")]
+    [Migration("20160330133447_defaultMigration")]
     partial class defaultMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -254,6 +254,8 @@ namespace SoftUniIssueTracker.Web.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("IsDefault");
 
                     b.Property<string>("Name")
                         .IsRequired();

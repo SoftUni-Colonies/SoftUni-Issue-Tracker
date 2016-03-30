@@ -1,16 +1,257 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IdentityModel.Tokens;
 using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.Data.Entity;
+using SIT.Data.Interfaces;
+using SIT.Models;
+using SIT.Web.BindingModels;
 using SIT.Web.Services.Interfaces;
+using SIT.Web.ViewModels.Issue;
+using System.Linq;
+using System.Linq.Dynamic;
+using SIT.Web.ViewModels.Status;
+
+//using System.Linq.Dynamic;
 
 namespace SIT.Web.Services
 {
-    public class IssuesService : IIssueService
+    public class IssuesService : BaseService, IIssuesService
     {
-        public void Add()
+        private IMapper mapper;
+        private ISoftUniIssueTrackerData data;
+
+        public IssuesService(ISoftUniIssueTrackerData data, IMapper mapper)
         {
-            throw new NotImplementedException();
+            this.data = data;
+            this.mapper = mapper;
+        }
+
+        public IssueViewModel Add(string authorId, IssueBindingModel model)
+        {
+            var issue = mapper.Map<IssueBindingModel, Issue>(model);
+
+            var issueProject = this.data.ProjectRepository.GetById(issue.ProjectId)
+                .Include(p => p.Issues)
+                .Include(p => p.ProjectPriorities)
+                .ThenInclude(pp => pp.Priority)
+                .FirstOrDefault();
+            if (issueProject == null)
+            {
+                throw new ArgumentException(Constants.UnexistingProjectErrorMessage);
+            }
+
+            var issueAssignee = this.data.UserRepository.GetById(model.AssigneeId).FirstOrDefault();
+            if (issueAssignee == null)
+            {
+                throw new ArgumentException(Constants.UnexistingUserErrorMessage);
+            }
+
+            var issuePriority =
+                this.data.ProjectPrioritiesRepository.Get(pp => pp.ProjectId == issue.ProjectId
+                                                                && pp.PriorityId == issue.PriorityId);
+            if (issuePriority == null)
+            {
+                throw new ArgumentException(Constants.UnexistingPriorityForProjectErrorMessage);
+            }
+
+            var projectIssuesCount = issueProject.Issues.Count;
+            issue.IssueKey = issueProject.ProjectKey + "-" + ++projectIssuesCount;
+            issue.AuthorId = authorId;
+            AddLabels(model.Labels, issue);
+            SelectParentStatusInTransitionScheme(issueProject.TransitionSchemeId, issue);
+
+            this.data.IssueRepository.Insert(issue);
+            this.data.Save();
+
+            var mappedIssue = mapper.Map<Issue, IssueViewModel>(issue);
+            mappedIssue.AvailableStatuses = GetAvailableStatuses(issue.StatusId, issue.Project.TransitionSchemeId);
+            return mappedIssue;
+        }
+
+        public IssueViewModel Edit(int id, IssueEditBindingModel model)
+        {
+            var issue = this.data.IssueRepository.GetById(id)
+                .Include(i => i.IssueLabels)
+                .ThenInclude(il => il.Label)
+                .Include(i => i.Priority)
+                .Include(i => i.Project.TransitionSchemeId)
+                .FirstOrDefault();
+            if (issue == null)
+            {
+                throw new ArgumentException(Constants.UnexistingProjectErrorMessage);
+            }
+
+            issue.Title = model.Title;
+            issue.Description = model.Description;
+            issue.AssigneeId = model.AssigneeId;
+            issue.PriorityId = model.PriorityId;
+            issue.DueDate = model.DueDate;
+
+            var labels = this.data.IssueLabelsRepository.Get(il => il.IssueId == issue.Id).ToList();
+            foreach (var issueLabel in labels)
+            {
+                this.data.IssueLabelsRepository.Delete(issueLabel);
+            }
+
+            AddLabels(model.Labels, issue);
+
+            this.data.Save();
+
+            var mappedIssue = mapper.Map<Issue, IssueViewModel>(issue);
+            mappedIssue.AvailableStatuses = GetAvailableStatuses(issue.StatusId, issue.Project.TransitionSchemeId);
+            return mappedIssue;
+        }
+
+        public IEnumerable<IssueViewModel> Get(string filter)
+        {
+            var issuesQuery = this.data.IssueRepository.Get()
+                .Include(i => i.Assignee)
+                .Include(i => i.Author)
+                .Include(i => i.Priority)
+                .Include(i => i.Status)
+                .AsQueryable();
+
+            if (filter != null)
+            {
+                issuesQuery = issuesQuery.Where(filter);
+            }
+
+            var issues = issuesQuery.ToList();
+            return issues.Select(i => mapper.Map<Issue, IssueViewModel>(i));
+        } 
+        public IEnumerable<IssueViewModel> GetUserIssues(string userId, string orderBy)
+        {
+            var issuesQuery = this.data.IssueRepository.Get(i => i.AssigneeId == userId)
+                .Include(i => i.Assignee)
+                .Include(i => i.Author)
+                .Include(i => i.Priority)
+                .Include(i => i.Status)
+                .AsQueryable();
+
+            if (orderBy != null)
+            {
+                issuesQuery = issuesQuery.OrderBy(orderBy);
+            }
+
+            var issues = issuesQuery.ToList();
+            return issues.Select(i => mapper.Map<Issue, IssueViewModel>(i));
+        }
+
+        public IEnumerable<IssueViewModel> GetProjectIssues(int projectId)
+        {
+            var issues = this.data.IssueRepository.Get(i => i.ProjectId == projectId)
+                .Include(i => i.Assignee)
+                .Include(i => i.Author)
+                .Include(i => i.Priority)
+                .Include(i => i.Status)
+                .ToList();
+            var issuesMapped = issues.Select(i => mapper.Map<Issue, IssueViewModel>(i));
+            return issuesMapped;
+        } 
+
+        public IssueViewModel GetById(int id)
+        {
+            var issue = this.data.IssueRepository.GetById(id)
+                .Include(i => i.Assignee)
+                .Include(i => i.Author)
+                .Include(i => i.Priority)
+                .Include(i => i.Status)
+                .FirstOrDefault();
+            if (issue == null)
+            {
+                throw new ArgumentException(Constants.UnexistingIssueErrorMessage);
+            }
+            var mappedIssue = mapper.Map<Issue, IssueViewModel>(issue);
+            return mappedIssue;
+        }
+
+        public IEnumerable<StatusViewModel> ChangeStatus(int issueId, int statusId)
+        {
+            var issue = this.data.IssueRepository.GetById(issueId)
+                .Include(i => i.Project)
+                .FirstOrDefault();
+            if (issue == null)
+            {
+                throw new ArgumentException(Constants.UnexistingIssueErrorMessage);
+            }
+
+            var status = this.data.StatusRepository.GetById(statusId).FirstOrDefault();
+            if (status == null)
+            {
+                throw new ArgumentException(Constants.UnexistingStatusErrorMessage);
+            }
+
+            var statusInIssueTransitionScheme =
+                this.data.StatusTransitionRepository.Get(st => st.TransitionSchemeId == issue.Project.TransitionSchemeId
+                                                               && st.ChildStatusId == status.Id
+                                                               && st.ParentStatusId == issue.StatusId)
+                    .FirstOrDefault();
+            if (statusInIssueTransitionScheme == null)
+            {
+                throw new ArgumentException(Constants.UnavailableStatusForIssue);
+            }
+
+            issue.StatusId = statusId;
+            this.data.Save();
+
+            return GetAvailableStatuses(statusId, issue.Project.TransitionSchemeId);
+
+        }
+
+        private IEnumerable<StatusViewModel> GetAvailableStatuses(int statusId, int transitionSchemeId)
+        {
+            var availableStatuses = this.data.StatusTransitionRepository.Get(
+                st => st.TransitionSchemeId == transitionSchemeId
+                      && st.ParentStatusId == statusId)
+                .Select(st => st.ChildStatus)
+                .ToList();
+
+            return availableStatuses.Select(s => mapper.Map<Status, StatusViewModel>(s));
+        }
+
+        //TODO: Extract method in base class because it is duplicated in the ProjectService
+        private void AddLabels(IEnumerable<Label> labels, Issue issue)
+        {
+            foreach (var label in labels)
+            {
+                var labelEntity = this.data.LabelRepository.Get(l => l.Name == label.Name).FirstOrDefault();
+                if (labelEntity == null)
+                {
+                    labelEntity = new Label()
+                    {
+                        Name = label.Name
+                    };
+                    this.data.LabelRepository.Insert(labelEntity);
+                }
+
+                var issueLabel = new IssueLabel()
+                {
+                    Label = labelEntity,
+                    Issue = issue
+                };
+
+                //var projectLabelEntity = this.data.ProjectLabelsRepository.Get(e => e.LabelId == labelEntity.Id
+                //                                                            && e.ProjectId == project.Id).FirstOrDefault();
+                //if (projectLabelEntity == null)
+                issue.IssueLabels.Add(issueLabel);
+            }
+        }
+
+        private void SelectParentStatusInTransitionScheme(int transitionSchemeId, Issue issue)
+        {
+            var allStatusesChildColumn = this.data.StatusTransitionRepository.Get(
+                st => st.TransitionScheme.Id == transitionSchemeId)
+                .Select(st => st.ChildStatusId)
+                .ToList();
+            var parentStatus =
+                this.data.StatusTransitionRepository.Get(st => st.TransitionSchemeId == transitionSchemeId
+                                                               && !allStatusesChildColumn.Contains(st.Id))
+                    .Select(st => st.ParentStatus)
+                    .FirstOrDefault();
+
+            issue.Status = parentStatus;
         }
     }
 }

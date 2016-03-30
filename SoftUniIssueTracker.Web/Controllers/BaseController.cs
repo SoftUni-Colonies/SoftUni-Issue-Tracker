@@ -11,5 +11,6 @@ namespace SIT.Web.Controllers
 {
     public abstract class BaseController : Controller
     {
+        protected string userId = "1a6d7120-2aa8-4d39-b0fb-63a88bce88b1";
     }
 }

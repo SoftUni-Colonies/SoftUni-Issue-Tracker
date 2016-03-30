@@ -18,10 +18,12 @@ namespace SIT.Web.Controllers
     public class ProjectsController : BaseController
     {
         private IProjectsService projectsService;
+        private IIssuesService issuesService;
 
-        public ProjectsController(IProjectsService projectsService)
+        public ProjectsController(IProjectsService projectsService, IIssuesService issuesService)
         {
             this.projectsService = projectsService;
+            this.issuesService = issuesService;
         }
 
         [HttpPost]
@@ -35,7 +37,7 @@ namespace SIT.Web.Controllers
 
             try
             {
-                this.projectsService.Add(model);
+                this.projectsService.Add(this.userId, model);
                 return new HttpOkResult();
             }
             catch (Exception e)
@@ -46,7 +48,7 @@ namespace SIT.Web.Controllers
 
         [HttpPut]
         [Route("{id}")]
-        public IActionResult Edit(int id, ProjectBindingModel model)
+        public IActionResult Edit(int id, ProjectEditBindingModel model)
         {
             try
             {
@@ -63,16 +65,45 @@ namespace SIT.Web.Controllers
         [Route("")]
         public IActionResult Get()
         {
-            var projects = this.projectsService.Get();
-            return new JsonResult(projects);
+            try
+            {
+                var projects = this.projectsService.Get();
+                return new JsonResult(projects);
+            }
+            catch (Exception e)
+            {
+                return new BadRequestObjectResult(e.Message);
+            }
         }
 
         [HttpGet]
         [Route("{id}")]
         public IActionResult Get(int id)
         {
-            var project = this.projectsService.GetById(id);
-            return new JsonResult(project);
+            try
+            {
+                var project = this.projectsService.GetById(id);
+                return new JsonResult(project);
+            }
+            catch (Exception e)
+            {
+                return new BadRequestObjectResult(e.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("{id}/issues")]
+        public IActionResult GetIssues(int id)
+        {
+            try
+            {
+                var issues = issuesService.GetProjectIssues(id);
+                return new JsonResult(issues);
+            }
+            catch (Exception e)
+            {
+                return new BadRequestObjectResult(e.Message);
+            }
         }
     }
 }

@@ -10,6 +10,8 @@ namespace SIT.Web.ViewModels.Project
 {
     public class ProjectViewModel
     {
+        public int Id { get; set; }
+
         public string Name { get; set; }
 
         public string ProjectKey { get; set; }

@@ -10,8 +10,8 @@ namespace SIT.Web.Services.Interfaces
 {
     public interface IProjectsService
     {
-        void Add(ProjectBindingModel model);
-        void Edit(int id, ProjectBindingModel model);
+        void Add(string authorId, ProjectBindingModel model);
+        void Edit(int id, ProjectEditBindingModel model);
         IEnumerable<ProjectViewModel> Get();
         ProjectViewModel GetById(int id);
     }

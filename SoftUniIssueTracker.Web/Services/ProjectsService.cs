@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNet.Mvc;
 using Microsoft.Data.Entity;
 using SIT.Data.Interfaces;
@@ -16,32 +17,31 @@ namespace SIT.Web.Services
 {
     public class ProjectsService : BaseService, IProjectsService
     {
+        private IMapper mapper;
         private ISoftUniIssueTrackerData data;
+        private ITransitionSchemeService transitionSchemeService;
 
-        public ProjectsService(ISoftUniIssueTrackerData data)
+        public ProjectsService(ISoftUniIssueTrackerData data, IMapper mapper, ITransitionSchemeService transitionSchemeService)
         {
             this.data = data;
+            this.mapper = mapper;
+            this.transitionSchemeService = transitionSchemeService;
         }
 
-        public void Add(ProjectBindingModel model)
+        public void Add(string authorId, ProjectBindingModel model)
         {
-            var project = new Project()
-            {
-                Name = model.Name,
-                Description = model.Description,
-                LeadId = model.LeadId,
-                ProjectKey = model.ProjectKey,
-            };
+            var project = mapper.Map<ProjectBindingModel, Project>(model);
+            project.LeadId = authorId;
 
-            AddTransitionScheme(model, project);
-            AddLabels(model, project);
-            AddPriorities(model, project);
+            AddTransitionScheme(model.TransitionSchemeId, project);
+            AddLabels(model.Labels, project);
+            AddPriorities(model.Priorities, project);
 
             this.data.ProjectRepository.Insert(project);
             this.data.Save();
         }
 
-        public void Edit(int id, ProjectBindingModel model)
+        public void Edit(int id, ProjectEditBindingModel model)
         {
             var project = this.data.ProjectRepository.GetById(id)
                 .Include(p => p.ProjectLabels)
@@ -51,12 +51,11 @@ namespace SIT.Web.Services
                 .FirstOrDefault();
             if (project == null)
             {
-                throw new ArgumentException("Project not found");
+                throw new ArgumentException(Constants.UnexistingProjectErrorMessage);
             }
 
             project.Name = model.Name;
             project.Description = model.Description;
-            project.ProjectKey = model.ProjectKey;
             project.LeadId = model.LeadId;
 
             var labels = this.data.ProjectLabelsRepository.Get().Where(pl => pl.ProjectId == project.Id);
@@ -71,9 +70,9 @@ namespace SIT.Web.Services
                 this.data.ProjectPrioritiesRepository.Delete(priority);
             }
 
-            AddTransitionScheme(model, project);
-            AddLabels(model, project);
-            AddPriorities(model, project);
+            AddTransitionScheme(model.TransitionSchemeId, project);
+            AddLabels(model.Labels, project);
+            AddPriorities(model.Priorities, project);
 
             this.data.Save();
         }
@@ -91,14 +90,7 @@ namespace SIT.Web.Services
 
             foreach (var project in projects)
             {
-                var projectViewModel = new ProjectViewModel()
-                {
-                    Name = project.Name,
-                    Description = project.Description,
-                    ProjectKey = project.ProjectKey,
-                    TransitionSchemeId = project.TransitionSchemeId,
-                    LeadId = project.LeadId
-                };
+                var projectViewModel = mapper.Map<Project, ProjectViewModel>(project);
 
                 projectViewModel.Labels = new List<LabelViewModel>();
                 projectViewModel.Priorities = new List<PriorityViewModel>();
@@ -127,14 +119,11 @@ namespace SIT.Web.Services
                 .ThenInclude(p => p.Priority)
                 .FirstOrDefault();
 
-            var projectViewModel = new ProjectViewModel()
+            if (project == null)
             {
-                Name = project.Name,
-                Description = project.Description,
-                ProjectKey = project.ProjectKey,
-                TransitionSchemeId = project.TransitionSchemeId,
-                LeadId = project.LeadId
-            };
+                throw new ArgumentException(Constants.UnexistingProjectErrorMessage);
+            }
+            var projectViewModel = mapper.Map<Project, ProjectViewModel>(project);
 
             projectViewModel.Labels = new List<LabelViewModel>();
             projectViewModel.Priorities = new List<PriorityViewModel>();
@@ -151,15 +140,9 @@ namespace SIT.Web.Services
             return projectViewModel;
         }
 
-        private void AddLabels(ProjectBindingModel model, Project project)
+        private void AddLabels(IEnumerable<Label> labels, Project project)
         {
-            //var modelLabelNames = model.Labels.Select(l => l.Name).ToList();
-            //foreach (var projectLabel in project.ProjectLabels.Where(projectLabel => modelLabelNames.Contains(projectLabel.Label.Name)))
-            //{
-            //    model.Labels.RemoveAt(modelLabelNames.IndexOf(projectLabel.Label.Name));
-            //}
-
-            foreach (var label in model.Labels)
+            foreach (var label in labels)
             {
                 var labelEntity = this.data.LabelRepository.Get(l => l.Name == label.Name).FirstOrDefault();
                 if (labelEntity == null)
@@ -180,13 +163,13 @@ namespace SIT.Web.Services
                 //var projectLabelEntity = this.data.ProjectLabelsRepository.Get(e => e.LabelId == labelEntity.Id
                 //                                                            && e.ProjectId == project.Id).FirstOrDefault();
                 //if (projectLabelEntity == null)
-                    project.ProjectLabels.Add(projectLabel);
+                project.ProjectLabels.Add(projectLabel);
             }
         }
 
-        private void AddPriorities(ProjectBindingModel model, Project project)
+        private void AddPriorities(List<Priority> priorities , Project project)
         {
-            foreach (var priority in model.Priorities)
+            foreach (var priority in priorities)
             {
                 var priorityEntity = this.data.PriorityRepository.Get(l => l.Name == priority.Name).FirstOrDefault();
                 if (priorityEntity == null)
@@ -211,25 +194,25 @@ namespace SIT.Web.Services
             }
         }
 
-        private void AddTransitionScheme(ProjectBindingModel model, Project project)
+        private void AddTransitionScheme(int? transitionSchemeId, Project project)
         {
-            if (model.TransitionSchemeId != null)
+            if (transitionSchemeId != null)
             {
-                var transitionSchemeEntity = this.data.TransitionSchemeRepository.GetById(model.TransitionSchemeId.Value);
+                var transitionSchemeEntity = this.data.TransitionSchemeRepository.GetById(transitionSchemeId.Value);
                 if (transitionSchemeEntity == null)
                 {
-                    throw new ArgumentException("Invalid transition scheme id.");
+                    throw new ArgumentException(Constants.UnexistingTransitionSchemeErrorMessage);
                 }
-                project.TransitionSchemeId = model.TransitionSchemeId.Value;
+                project.TransitionSchemeId = transitionSchemeId.Value;
             }
             else
             {
-                var transitionScheme = new TransitionScheme()
+                var transitionScheme = this.data.TransitionSchemeRepository.Get(t => t.IsDefault).FirstOrDefault();
+                if (transitionScheme == null)
                 {
-                    Name = model.Name + " transition scheme"
-                };
+                    transitionScheme = transitionSchemeService.AddDefaultTransitionScheme();
+                }
 
-                this.data.TransitionSchemeRepository.Insert(transitionScheme);
                 project.TransitionScheme = transitionScheme;
             }
         }

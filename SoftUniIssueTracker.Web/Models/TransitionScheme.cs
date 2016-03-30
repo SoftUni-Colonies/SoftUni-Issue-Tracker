@@ -20,6 +20,8 @@ namespace SIT.Models
         [Required]
         public string Name { get; set; }
 
+        public bool IsDefault { get; set; }
+
         public virtual ICollection<StatusTransition> StatusTransitions
         {
             get { return this.transitions; }

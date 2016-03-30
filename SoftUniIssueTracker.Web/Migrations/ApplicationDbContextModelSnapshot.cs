@@ -254,6 +254,8 @@ namespace SoftUniIssueTracker.Web.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<bool>("IsDefault");
+
                     b.Property<string>("Name")
                         .IsRequired();
 

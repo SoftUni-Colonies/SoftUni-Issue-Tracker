@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SIT.Web.Services
+namespace SIT.Web
 {
-    public class BaseService
+    public enum DefaultTransitionSchemeStatuses
     {
+        Open,
+        Closed
     }
 }

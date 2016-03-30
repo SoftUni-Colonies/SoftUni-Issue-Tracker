@@ -8,12 +8,12 @@ namespace SIT.Models
 
     public class Issue : IDentificatable<int>
     {
-        private ICollection<IssueLabel> issueLabels;
+        private ICollection<IssueLabel> _issueLabels;
         private ICollection<Comment> comments;
 
         public Issue()
         {
-            this.issueLabels = new HashSet<IssueLabel>();
+            this._issueLabels = new HashSet<IssueLabel>();
             this.comments = new HashSet<Comment>();
         }
 
@@ -53,10 +53,10 @@ namespace SIT.Models
 
         public virtual Status Status { get; set; }
 
-        public virtual ICollection<IssueLabel> Labels
+        public virtual ICollection<IssueLabel> IssueLabels
         {
-            get { return this.issueLabels; }
-            set { this.issueLabels = value; }
+            get { return this._issueLabels; }
+            set { this._issueLabels = value; }
         }
 
         public virtual ICollection<Comment> Comments
