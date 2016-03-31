@@ -12,6 +12,9 @@ using SIT.Web.ViewModels.Issue;
 using System.Linq;
 using System.Linq.Dynamic;
 using AutoMapper.Internal;
+using SIT.Web.BindingModels.Comment;
+using SIT.Web.BindingModels.Issue;
+using SIT.Web.ViewModels.Comment;
 using SIT.Web.ViewModels.Status;
 
 //using System.Linq.Dynamic;
@@ -200,8 +203,34 @@ namespace SIT.Web.Services
             this.data.Save();
 
             return GetAvailableStatuses(statusId, issue.Project.TransitionSchemeId);
-
         }
+
+        public IEnumerable<CommentViewModel> AddComment(int issueId, string authorId, CommentBindingModel model)
+        {
+            var comment = mapper.Map<CommentBindingModel, Comment>(model);
+
+            var issue = this.data.IssueRepository.GetById(issueId).FirstOrDefault();
+            if (issue == null)
+            {
+                throw new ArgumentException(Constants.UnexistingIssueErrorMessage);
+            }
+            comment.Issue = issue;
+            comment.AuthorId = authorId;
+            comment.CreatedOn = DateTime.UtcNow;
+
+            this.data.CommentRepository.Insert(comment);
+            this.data.Save();
+
+            return GetIssueComments(issueId);
+        }
+
+        public IEnumerable<CommentViewModel> GetIssueComments(int id)
+        {
+            var comments = this.data.CommentRepository.Get(c => c.IssueId == id)
+                .Include(c => c.Author)
+                .ToList();
+            return mapper.Map<IEnumerable<Comment>, IEnumerable<CommentViewModel>>(comments);
+        } 
 
         private IEnumerable<StatusViewModel> GetAvailableStatuses(int statusId, int transitionSchemeId)
         {

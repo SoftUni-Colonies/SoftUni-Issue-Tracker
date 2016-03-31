@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SIT.Models;
 using SIT.Web.BindingModels;
+using SIT.Web.BindingModels.Project;
 using SIT.Web.ViewModels.Project;
 
 namespace SIT.Web.Services.Interfaces

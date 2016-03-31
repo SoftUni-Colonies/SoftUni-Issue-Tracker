@@ -9,6 +9,7 @@ using SIT.Data;
 using SIT.Data.Interfaces;
 using SIT.Models;
 using SIT.Web.BindingModels;
+using SIT.Web.BindingModels.Project;
 using SIT.Web.Services;
 using SIT.Web.Services.Interfaces;
 
@@ -35,75 +36,40 @@ namespace SIT.Web.Controllers
                 return this.HttpBadRequest(ModelState);
             }
 
-            try
-            {
-                var project = this.projectsService.Add(this.userId, model);
-                return CreatedAtRoute("GetProjectById", new {id = project.Id }, project);
-            }
-            catch (Exception e)
-            {
-                return new BadRequestObjectResult(e.Message);
-            }
+            var project = this.projectsService.Add(this.userId, model);
+            return CreatedAtRoute("GetProjectById", new { id = project.Id }, project);
         }
 
         [HttpPut]
         [Route("{id}")]
         public IActionResult Edit(int id, ProjectEditBindingModel model)
         {
-            try
-            {
-                var project = this.projectsService.Edit(id, model);
-                return CreatedAtRoute("GetProjectById", new { id = project.Id }, project);
-            }
-            catch (Exception e)
-            {
-                return new BadRequestObjectResult(e.Message);
-            }
+            var project = this.projectsService.Edit(id, model);
+            return CreatedAtRoute("GetProjectById", new { id = project.Id }, project);
         }
 
         [HttpGet]
         [Route("")]
         public IActionResult Get()
         {
-            try
-            {
-                var projects = this.projectsService.Get();
-                return new JsonResult(projects);
-            }
-            catch (Exception e)
-            {
-                return new BadRequestObjectResult(e.Message);
-            }
+            var projects = this.projectsService.Get();
+            return new JsonResult(projects);
         }
 
         [HttpGet]
         [Route("{id}", Name = "GetProjectById")]
         public IActionResult GetById(int id)
         {
-            try
-            {
-                var project = this.projectsService.GetById(id);
-                return new JsonResult(project);
-            }
-            catch (Exception e)
-            {
-                return new BadRequestObjectResult(e.Message);
-            }
+            var project = this.projectsService.GetById(id);
+            return new JsonResult(project);
         }
 
         [HttpGet]
         [Route("{id}/issues")]
         public IActionResult GetIssues(int id)
         {
-            try
-            {
-                var issues = issuesService.GetProjectIssues(id);
-                return new JsonResult(issues);
-            }
-            catch (Exception e)
-            {
-                return new BadRequestObjectResult(e.Message);
-            }
+            var issues = issuesService.GetProjectIssues(id);
+            return new JsonResult(issues);
         }
     }
 }

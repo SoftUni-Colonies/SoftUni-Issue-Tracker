@@ -6,6 +6,10 @@ using AutoMapper;
 using Microsoft.AspNet.Hosting.Internal;
 using SIT.Models;
 using SIT.Web.BindingModels;
+using SIT.Web.BindingModels.Comment;
+using SIT.Web.BindingModels.Issue;
+using SIT.Web.BindingModels.Project;
+using SIT.Web.ViewModels.Comment;
 using SIT.Web.ViewModels.Issue;
 using SIT.Web.ViewModels.Label;
 using SIT.Web.ViewModels.Priority;
@@ -32,6 +36,8 @@ namespace SIT.Web
             CreateMap<ProjectLabel, LabelViewModel>().ForMember(dest => dest.Name,
               opts => opts.MapFrom(src => src.Label.Name)).ForMember(dest => dest.Id,
               opts => opts.MapFrom(src => src.Label.Id));
+            CreateMap<CommentBindingModel, Comment>();
+            CreateMap<Comment, CommentViewModel>();
         }
     }
 }

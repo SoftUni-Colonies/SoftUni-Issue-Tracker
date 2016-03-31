@@ -4,6 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using SIT.Models;
 using SIT.Web.BindingModels;
+using SIT.Web.BindingModels.Comment;
+using SIT.Web.BindingModels.Issue;
+using SIT.Web.ViewModels.Comment;
 using SIT.Web.ViewModels.Issue;
 using SIT.Web.ViewModels.Project;
 using SIT.Web.ViewModels.Status;
@@ -19,5 +22,7 @@ namespace SIT.Web.Services.Interfaces
         IEnumerable<IssueViewModel> GetProjectIssues(int projectId);
         IssueViewModel GetById(int id);
         IEnumerable<StatusViewModel> ChangeStatus(int issueId, int statusId);
+        IEnumerable<CommentViewModel> AddComment(int issueId, string authorId, CommentBindingModel model);
+        IEnumerable<CommentViewModel> GetIssueComments(int id);
     }
 }

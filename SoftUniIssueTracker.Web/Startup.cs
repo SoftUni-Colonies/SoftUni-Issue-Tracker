@@ -67,9 +67,9 @@ namespace SIT.Web
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddMvc(m =>
+            services.AddMvc(options =>
             {
-                //m.ModelBinders[typeof(DateTime)] = new DateAndTimeModelBinder()
+                options.Filters.Add(new ExceptionHandler());
             });
 
             // Add application services.

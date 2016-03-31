@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Mvc;
 using SIT.Web.BindingModels;
+using SIT.Web.BindingModels.Comment;
+using SIT.Web.BindingModels.Issue;
 using SIT.Web.Services;
 using SIT.Web.Services.Interfaces;
 
@@ -28,15 +30,8 @@ namespace SIT.Web.Controllers
                 return this.HttpBadRequest(ModelState);
             }
 
-            try
-            {
-                var issue = this.issuesService.Add(this.userId, model);
-                return CreatedAtRoute("GetIssueById", new {id = issue.Id}, issue);
-            }
-            catch (Exception e)
-            {
-                return new BadRequestObjectResult(e.Message);
-            }
+            var issue = this.issuesService.Add(this.userId, model);
+            return CreatedAtRoute("GetIssueById", new { id = issue.Id }, issue);
         }
 
 
@@ -49,60 +44,32 @@ namespace SIT.Web.Controllers
                 return this.HttpBadRequest(ModelState);
             }
 
-            try
-            {
-                var issue = this.issuesService.Edit(id, model);
-                return new JsonResult(issue);
-            }
-            catch (Exception e)
-            {
-                return new BadRequestObjectResult(e.Message);
-            }
+            var issue = this.issuesService.Edit(id, model);
+            return new JsonResult(issue);
         }
 
         [HttpGet]
         [Route("")]
         public IActionResult Get(string filter)
         {
-            try
-            {
-                var issues = issuesService.Get(filter);
-                return new JsonResult(issues);
-            }
-            catch (Exception e)
-            {
-                return new BadRequestObjectResult(e.Message);
-            }
+            var issues = issuesService.Get(filter);
+            return new JsonResult(issues);
         }
 
         [HttpGet]
         [Route("me")]
         public IActionResult GetUserIssues(string orderBy)
         {
-            try
-            {
-                var issues = issuesService.GetUserIssues(this.userId, orderBy);
-                return new JsonResult(issues);
-            }
-            catch (Exception e)
-            {
-                return new BadRequestObjectResult(e.Message);
-            }
+            var issues = issuesService.GetUserIssues(this.userId, orderBy);
+            return new JsonResult(issues);
         }
 
         [HttpGet]
         [Route("{id}", Name = "GetIssueById")]
         public IActionResult GetById(int id)
         {
-            try
-            {
-                var issue = issuesService.GetById(id);
-                return new JsonResult(issue);
-            }
-            catch (Exception e)
-            {
-                return new BadRequestObjectResult(e.Message);
-            }
+            var issue = issuesService.GetById(id);
+            return new JsonResult(issue);
         }
 
         [HttpPut]
@@ -114,15 +81,29 @@ namespace SIT.Web.Controllers
                 return this.HttpBadRequest(ModelState);
             }
 
-            try
+            var availableStatuses = issuesService.ChangeStatus(id, statusId);
+            return new JsonResult(availableStatuses);
+        }
+
+        [HttpPost]
+        [Route("{id}/comments")]
+        public IActionResult AddComment(int id, CommentBindingModel model)
+        {
+            if (!ModelState.IsValid)
             {
-                var availableStatuses = issuesService.ChangeStatus(id, statusId);
-                return new JsonResult(availableStatuses);
+                return this.HttpBadRequest(ModelState);
             }
-            catch (Exception e)
-            {
-                return new BadRequestObjectResult(e.Message);
-            }
+
+            var allIssueComments = issuesService.AddComment(id, this.userId, model);
+            return CreatedAtRoute("GetIssueComments", new { id = id }, allIssueComments);
+        }
+
+        [HttpGet]
+        [Route("{id}/comments", Name = "GetIssueComments")]
+        public IActionResult GetIssueComments(int id)
+        { 
+            var comments = issuesService.GetIssueComments(id);
+            return new JsonResult(comments);
         }
     }
 }

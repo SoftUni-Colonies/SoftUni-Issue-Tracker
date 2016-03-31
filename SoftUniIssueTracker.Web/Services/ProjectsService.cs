@@ -8,6 +8,7 @@ using Microsoft.Data.Entity;
 using SIT.Data.Interfaces;
 using SIT.Models;
 using SIT.Web.BindingModels;
+using SIT.Web.BindingModels.Project;
 using SIT.Web.Services.Interfaces;
 using SIT.Web.ViewModels.Label;
 using SIT.Web.ViewModels.Priority;
@@ -40,12 +41,7 @@ namespace SIT.Web.Services
             this.data.ProjectRepository.Insert(project);
             this.data.Save();
 
-            var mapperProject = mapper.Map<Project, ProjectViewModel>(project);
-            mapperProject.Labels =
-                mapper.Map<ICollection<ProjectLabel>, ICollection<LabelViewModel>>(project.ProjectLabels);
-            mapperProject.Priorities =
-                mapper.Map<ICollection<ProjectPriority>, ICollection<PriorityViewModel>>(project.ProjectPriorities);
-            return mapperProject;
+            return GetMappedProject(project);
         }
 
         public ProjectViewModel Edit(int id, ProjectEditBindingModel model)
@@ -83,12 +79,7 @@ namespace SIT.Web.Services
 
             this.data.Save();
 
-            var mapperProject = mapper.Map<Project, ProjectViewModel>(project);
-            mapperProject.Labels =
-                mapper.Map<ICollection<ProjectLabel>, ICollection<LabelViewModel>>(project.ProjectLabels);
-            mapperProject.Priorities =
-                mapper.Map<ICollection<ProjectPriority>, ICollection<PriorityViewModel>>(project.ProjectPriorities);
-            return mapperProject;
+            return GetMappedProject(project);
         }
 
         public IEnumerable<ProjectViewModel> Get()
@@ -100,28 +91,7 @@ namespace SIT.Web.Services
                 .ThenInclude(p => p.Priority)
                 .ToList();
 
-            var projectsViewModels = new List<ProjectViewModel>();
-
-            foreach (var project in projects)
-            {
-                var projectViewModel = mapper.Map<Project, ProjectViewModel>(project);
-
-                projectViewModel.Labels = new List<LabelViewModel>();
-                projectViewModel.Priorities = new List<PriorityViewModel>();
-
-                foreach (var projectLabel in project.ProjectLabels)
-                {
-                    projectViewModel.Labels.Add(new LabelViewModel() { Name = projectLabel.Label.Name });
-                }
-
-                foreach (var projectPriority in project.ProjectPriorities)
-                {
-                    projectViewModel.Priorities.Add(new PriorityViewModel() { Name = projectPriority.Priority.Name });
-                }
-
-                projectsViewModels.Add(projectViewModel);
-            }
-            return projectsViewModels;
+            return GetMappedProjects(projects);
         }
 
         public ProjectViewModel GetById(int id)
@@ -137,21 +107,8 @@ namespace SIT.Web.Services
             {
                 throw new ArgumentException(Constants.UnexistingProjectErrorMessage);
             }
-            var projectViewModel = mapper.Map<Project, ProjectViewModel>(project);
-
-            projectViewModel.Labels = new List<LabelViewModel>();
-            projectViewModel.Priorities = new List<PriorityViewModel>();
-
-            foreach (var projectLabel in project.ProjectLabels)
-            {
-                projectViewModel.Labels.Add(mapper.Map<ProjectLabel, LabelViewModel>(projectLabel));
-            }
-
-            foreach (var projectPriority in project.ProjectPriorities)
-            {
-                projectViewModel.Priorities.Add(mapper.Map<ProjectPriority, PriorityViewModel>(projectPriority));
-            }
-            return projectViewModel;
+            
+            return GetMappedProject(project);
         }
 
         private void AddLabels(IEnumerable<Label> labels, Project project)
@@ -174,9 +131,6 @@ namespace SIT.Web.Services
                     Project = project
                 };
 
-                //var projectLabelEntity = this.data.ProjectLabelsRepository.Get(e => e.LabelId == labelEntity.Id
-                //                                                            && e.ProjectId == project.Id).FirstOrDefault();
-                //if (projectLabelEntity == null)
                 project.ProjectLabels.Add(projectLabel);
             }
         }
@@ -201,10 +155,7 @@ namespace SIT.Web.Services
                     Project = project
                 };
 
-                //var projectPriorityEntity = this.data.ProjectPrioritiesRepository.Get(e => e.PriorityId == priorityEntity.Id
-                //                                                           && e.ProjectId == project.Id).FirstOrDefault();
-                //if (projectPriorityEntity == null)
-                    project.ProjectPriorities.Add(projectPriority);
+                project.ProjectPriorities.Add(projectPriority);
             }
         }
 
@@ -229,6 +180,29 @@ namespace SIT.Web.Services
 
                 project.TransitionScheme = transitionScheme;
             }
+        }
+
+        private ProjectViewModel GetMappedProject(Project project)
+        {
+            return GetMappedProjects(new List<Project>() {project}).First();
+        }
+
+        private IEnumerable<ProjectViewModel> GetMappedProjects(IEnumerable<Project> projects)
+        {
+            var mappedProjects = new List<ProjectViewModel>();
+
+            foreach (var project in projects)
+            {
+                var mappedProject = this.mapper.Map<Project, ProjectViewModel>(project);
+                mappedProject.Labels =
+                    this.mapper.Map<ICollection<ProjectLabel>, ICollection<LabelViewModel>>(project.ProjectLabels);
+                mappedProject.Priorities =
+                    this.mapper.Map<ICollection<ProjectPriority>, ICollection<PriorityViewModel>>(
+                        project.ProjectPriorities);
+                mappedProjects.Add(mappedProject);
+            }
+
+            return mappedProjects;
         }
     }
 }
