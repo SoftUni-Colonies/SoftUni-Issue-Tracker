@@ -22,8 +22,8 @@ namespace SIT.Web.ViewModels.Project
 
         public int TransitionSchemeId { get; set; }
 
-        public List<LabelViewModel> Labels { get; set; }
+        public ICollection<LabelViewModel> Labels { get; set; }
 
-        public List<PriorityViewModel> Priorities { get; set; }
+        public ICollection<PriorityViewModel> Priorities { get; set; }
     }
 }

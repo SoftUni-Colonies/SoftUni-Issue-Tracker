@@ -37,8 +37,8 @@ namespace SIT.Web.Controllers
 
             try
             {
-                this.projectsService.Add(this.userId, model);
-                return new HttpOkResult();
+                var project = this.projectsService.Add(this.userId, model);
+                return CreatedAtRoute("GetProjectById", new {id = project.Id }, project);
             }
             catch (Exception e)
             {
@@ -52,8 +52,8 @@ namespace SIT.Web.Controllers
         {
             try
             {
-                this.projectsService.Edit(id, model);
-                return new HttpOkResult();
+                var project = this.projectsService.Edit(id, model);
+                return CreatedAtRoute("GetProjectById", new { id = project.Id }, project);
             }
             catch (Exception e)
             {
@@ -77,8 +77,8 @@ namespace SIT.Web.Controllers
         }
 
         [HttpGet]
-        [Route("{id}")]
-        public IActionResult Get(int id)
+        [Route("{id}", Name = "GetProjectById")]
+        public IActionResult GetById(int id)
         {
             try
             {

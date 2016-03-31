@@ -7,6 +7,7 @@ namespace SIT.Web.ViewModels.Label
 {
     public class LabelViewModel
     {
+        public int Id { get; set; }
         public string Name { get; set; }
     }
 }

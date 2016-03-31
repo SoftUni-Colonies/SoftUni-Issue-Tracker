@@ -11,6 +11,7 @@ using SIT.Web.Services.Interfaces;
 using SIT.Web.ViewModels.Issue;
 using System.Linq;
 using System.Linq.Dynamic;
+using AutoMapper.Internal;
 using SIT.Web.ViewModels.Status;
 
 //using System.Linq.Dynamic;
@@ -65,9 +66,7 @@ namespace SIT.Web.Services
             this.data.IssueRepository.Insert(issue);
             this.data.Save();
 
-            var mappedIssue = mapper.Map<Issue, IssueViewModel>(issue);
-            mappedIssue.AvailableStatuses = GetAvailableStatuses(issue.StatusId, issue.Project.TransitionSchemeId);
-            return mappedIssue;
+            return GetMappedIssueWithAvailableStatuses(issue);
         }
 
         public IssueViewModel Edit(int id, IssueEditBindingModel model)
@@ -76,7 +75,8 @@ namespace SIT.Web.Services
                 .Include(i => i.IssueLabels)
                 .ThenInclude(il => il.Label)
                 .Include(i => i.Priority)
-                .Include(i => i.Project.TransitionSchemeId)
+                .Include(i => i.Project)
+                .Include(i => i.Status)
                 .FirstOrDefault();
             if (issue == null)
             {
@@ -99,9 +99,7 @@ namespace SIT.Web.Services
 
             this.data.Save();
 
-            var mappedIssue = mapper.Map<Issue, IssueViewModel>(issue);
-            mappedIssue.AvailableStatuses = GetAvailableStatuses(issue.StatusId, issue.Project.TransitionSchemeId);
-            return mappedIssue;
+            return GetMappedIssueWithAvailableStatuses(issue);
         }
 
         public IEnumerable<IssueViewModel> Get(string filter)
@@ -111,6 +109,7 @@ namespace SIT.Web.Services
                 .Include(i => i.Author)
                 .Include(i => i.Priority)
                 .Include(i => i.Status)
+                .Include(i => i.Project)
                 .AsQueryable();
 
             if (filter != null)
@@ -119,8 +118,9 @@ namespace SIT.Web.Services
             }
 
             var issues = issuesQuery.ToList();
-            return issues.Select(i => mapper.Map<Issue, IssueViewModel>(i));
-        } 
+            return GetMappedIssuesWithAvailableStatuses(issues);
+        }
+
         public IEnumerable<IssueViewModel> GetUserIssues(string userId, string orderBy)
         {
             var issuesQuery = this.data.IssueRepository.Get(i => i.AssigneeId == userId)
@@ -128,6 +128,7 @@ namespace SIT.Web.Services
                 .Include(i => i.Author)
                 .Include(i => i.Priority)
                 .Include(i => i.Status)
+                .Include(i => i.Project)
                 .AsQueryable();
 
             if (orderBy != null)
@@ -136,7 +137,7 @@ namespace SIT.Web.Services
             }
 
             var issues = issuesQuery.ToList();
-            return issues.Select(i => mapper.Map<Issue, IssueViewModel>(i));
+            return GetMappedIssuesWithAvailableStatuses(issues);
         }
 
         public IEnumerable<IssueViewModel> GetProjectIssues(int projectId)
@@ -146,10 +147,11 @@ namespace SIT.Web.Services
                 .Include(i => i.Author)
                 .Include(i => i.Priority)
                 .Include(i => i.Status)
+                .Include(i => i.Project)
                 .ToList();
-            var issuesMapped = issues.Select(i => mapper.Map<Issue, IssueViewModel>(i));
-            return issuesMapped;
-        } 
+
+            return GetMappedIssuesWithAvailableStatuses(issues);
+        }
 
         public IssueViewModel GetById(int id)
         {
@@ -158,13 +160,14 @@ namespace SIT.Web.Services
                 .Include(i => i.Author)
                 .Include(i => i.Priority)
                 .Include(i => i.Status)
+                .Include(i => i.Project)
                 .FirstOrDefault();
             if (issue == null)
             {
                 throw new ArgumentException(Constants.UnexistingIssueErrorMessage);
             }
-            var mappedIssue = mapper.Map<Issue, IssueViewModel>(issue);
-            return mappedIssue;
+
+            return GetMappedIssueWithAvailableStatuses(issue);
         }
 
         public IEnumerable<StatusViewModel> ChangeStatus(int issueId, int statusId)
@@ -252,6 +255,22 @@ namespace SIT.Web.Services
                     .FirstOrDefault();
 
             issue.Status = parentStatus;
+        }
+
+        private IEnumerable<IssueViewModel> GetMappedIssuesWithAvailableStatuses(List<Issue> issues)
+        {
+            var mappedIssues = this.mapper.Map<ICollection<Issue>, ICollection<IssueViewModel>>(issues);
+            var availableStatuses = issues.Select(i => GetAvailableStatuses(i.StatusId, i.Project.TransitionSchemeId)).ToList();
+            for (int i = 0; i < issues.Count; i++)
+            {
+                mappedIssues.ElementAt(i).AvailableStatuses = availableStatuses.ElementAt(i);
+            }
+            return mappedIssues;
+        }
+
+        private IssueViewModel GetMappedIssueWithAvailableStatuses(Issue issue)
+        {
+            return GetMappedIssuesWithAvailableStatuses(new List<Issue>() {issue}).First();
         }
     }
 }

@@ -28,7 +28,7 @@ namespace SIT.Web.Services
             this.transitionSchemeService = transitionSchemeService;
         }
 
-        public void Add(string authorId, ProjectBindingModel model)
+        public ProjectViewModel Add(string authorId, ProjectBindingModel model)
         {
             var project = mapper.Map<ProjectBindingModel, Project>(model);
             project.LeadId = authorId;
@@ -39,9 +39,16 @@ namespace SIT.Web.Services
 
             this.data.ProjectRepository.Insert(project);
             this.data.Save();
+
+            var mapperProject = mapper.Map<Project, ProjectViewModel>(project);
+            mapperProject.Labels =
+                mapper.Map<ICollection<ProjectLabel>, ICollection<LabelViewModel>>(project.ProjectLabels);
+            mapperProject.Priorities =
+                mapper.Map<ICollection<ProjectPriority>, ICollection<PriorityViewModel>>(project.ProjectPriorities);
+            return mapperProject;
         }
 
-        public void Edit(int id, ProjectEditBindingModel model)
+        public ProjectViewModel Edit(int id, ProjectEditBindingModel model)
         {
             var project = this.data.ProjectRepository.GetById(id)
                 .Include(p => p.ProjectLabels)
@@ -75,6 +82,13 @@ namespace SIT.Web.Services
             AddPriorities(model.Priorities, project);
 
             this.data.Save();
+
+            var mapperProject = mapper.Map<Project, ProjectViewModel>(project);
+            mapperProject.Labels =
+                mapper.Map<ICollection<ProjectLabel>, ICollection<LabelViewModel>>(project.ProjectLabels);
+            mapperProject.Priorities =
+                mapper.Map<ICollection<ProjectPriority>, ICollection<PriorityViewModel>>(project.ProjectPriorities);
+            return mapperProject;
         }
 
         public IEnumerable<ProjectViewModel> Get()
@@ -130,12 +144,12 @@ namespace SIT.Web.Services
 
             foreach (var projectLabel in project.ProjectLabels)
             {
-                projectViewModel.Labels.Add(new LabelViewModel() { Name = projectLabel.Label.Name});
+                projectViewModel.Labels.Add(mapper.Map<ProjectLabel, LabelViewModel>(projectLabel));
             }
 
             foreach (var projectPriority in project.ProjectPriorities)
             {
-                projectViewModel.Priorities.Add(new PriorityViewModel() { Name = projectPriority.Priority.Name });
+                projectViewModel.Priorities.Add(mapper.Map<ProjectPriority, PriorityViewModel>(projectPriority));
             }
             return projectViewModel;
         }

@@ -31,8 +31,7 @@ namespace SIT.Web.Controllers
             try
             {
                 var issue = this.issuesService.Add(this.userId, model);
-                //TODO: fix createdAtRoute
-                return CreatedAtAction("GetById", "Issues", new {id = issue.Id});
+                return CreatedAtRoute("GetIssueById", new {id = issue.Id}, issue);
             }
             catch (Exception e)
             {
@@ -107,9 +106,14 @@ namespace SIT.Web.Controllers
         }
 
         [HttpPut]
-        [Route("{id}")]
+        [Route("{id}/changestatus")]
         public IActionResult ChangeStatus(int id, int statusId)
         {
+            if (!ModelState.IsValid)
+            {
+                return this.HttpBadRequest(ModelState);
+            }
+
             try
             {
                 var availableStatuses = issuesService.ChangeStatus(id, statusId);

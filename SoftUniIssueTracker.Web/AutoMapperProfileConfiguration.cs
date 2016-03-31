@@ -7,6 +7,7 @@ using Microsoft.AspNet.Hosting.Internal;
 using SIT.Models;
 using SIT.Web.BindingModels;
 using SIT.Web.ViewModels.Issue;
+using SIT.Web.ViewModels.Label;
 using SIT.Web.ViewModels.Priority;
 using SIT.Web.ViewModels.Project;
 using SIT.Web.ViewModels.Status;
@@ -25,6 +26,12 @@ namespace SIT.Web
             CreateMap<User, UserViewModel>();
             CreateMap<Priority, PriorityViewModel>();
             CreateMap<Status, StatusViewModel>();
+            CreateMap<ProjectPriority, PriorityViewModel>().ForMember(dest => dest.Name,
+               opts => opts.MapFrom(src => src.Priority.Name)).ForMember(dest => dest.Id,
+               opts => opts.MapFrom(src => src.Priority.Id));
+            CreateMap<ProjectLabel, LabelViewModel>().ForMember(dest => dest.Name,
+              opts => opts.MapFrom(src => src.Label.Name)).ForMember(dest => dest.Id,
+              opts => opts.MapFrom(src => src.Label.Id));
         }
     }
 }
