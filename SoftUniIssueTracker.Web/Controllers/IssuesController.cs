@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Mvc;
@@ -34,7 +35,6 @@ namespace SIT.Web.Controllers
             return CreatedAtRoute("GetIssueById", new { id = issue.Id }, issue);
         }
 
-
         [HttpPut]
         [Route("{id}")]
         public IActionResult Edit(int id, IssueEditBindingModel model)
@@ -50,17 +50,17 @@ namespace SIT.Web.Controllers
 
         [HttpGet]
         [Route("")]
-        public IActionResult Get(string filter)
+        public IActionResult Get(int pageSize, int pageNumber, string filter)
         {
-            var issues = issuesService.Get(filter);
+            var issues = issuesService.Get(pageSize, pageNumber, filter);
             return new JsonResult(issues);
         }
 
         [HttpGet]
         [Route("me")]
-        public IActionResult GetUserIssues(string orderBy)
+        public IActionResult GetUserIssues(int pageSize, int pageNumber, string orderBy)
         {
-            var issues = issuesService.GetUserIssues(this.userId, orderBy);
+            var issues = issuesService.GetUserIssues(this.userId, pageSize, pageNumber, orderBy);
             return new JsonResult(issues);
         }
 

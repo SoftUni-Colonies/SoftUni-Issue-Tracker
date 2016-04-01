@@ -17,8 +17,8 @@ namespace SIT.Web.Services.Interfaces
     {
         IssueViewModel Add(string authorId, IssueBindingModel model);
         IssueViewModel Edit(int id, IssueEditBindingModel model);
-        IEnumerable<IssueViewModel> Get(string filter);
-        IEnumerable<IssueViewModel> GetUserIssues(string userId, string orderBy);
+        IssueWithPagesViewModel Get(int pageSize, int pageNumber, string filter);
+        IssueWithPagesViewModel GetUserIssues(string userId, int pageSize, int pageNumber, string orderBy);
         IEnumerable<IssueViewModel> GetProjectIssues(int projectId);
         IssueViewModel GetById(int id);
         IEnumerable<StatusViewModel> ChangeStatus(int issueId, int statusId);

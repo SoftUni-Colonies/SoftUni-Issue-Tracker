@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNet.Authentication;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Infrastructure;
@@ -31,7 +32,7 @@ namespace SIT.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=.;Database=SoftUniIssueTracker;Trusted_Connection=True;MultipleActiveResultSets=true");
+            optionsBuilder.UseSqlServer("Data Source=tcp:eeehp2huzl.database.windows.net,1433;Initial Catalog=IssueTracker;User ID=ads@eeehp2huzl;Password=tupaPAROLA%2014");
         }
 
         protected override void OnModelCreating(ModelBuilder builder)

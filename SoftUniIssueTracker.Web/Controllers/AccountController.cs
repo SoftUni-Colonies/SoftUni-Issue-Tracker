@@ -119,7 +119,7 @@ namespace SIT.Web.Controllers
                     _logger.LogInformation(3, "User created a new account with password.");
 
                     //TODO: change redirect url
-                    return RedirectToAction(nameof(ProjectsController.Get), "Home");
+                    return new HttpOkObjectResult("Successful registration");
                 }
                 AddErrors(result);
             }

@@ -6,6 +6,7 @@ using AutoMapper;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.Mvc.Cors;
 using Microsoft.AspNet.Mvc.ModelBinding;
 using Microsoft.Data.Entity;
 using Microsoft.Extensions.Configuration;
@@ -70,7 +71,10 @@ namespace SIT.Web
             services.AddMvc(options =>
             {
                 options.Filters.Add(new ExceptionHandler());
+                //options.Filters.Add(new CorsAuthorizationFilterFactory("AllowAll"));
             });
+
+            services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin()));
 
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
@@ -117,6 +121,8 @@ namespace SIT.Web
             app.UseStaticFiles();
 
             app.UseIdentity();
+
+            app.UseCors("AllowAll");
 
             // To configure external authentication please see http://go.microsoft.com/fwlink/?LinkID=532715
 

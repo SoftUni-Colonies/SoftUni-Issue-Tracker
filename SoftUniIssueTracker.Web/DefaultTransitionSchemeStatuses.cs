@@ -8,6 +8,8 @@ namespace SIT.Web
     public enum DefaultTransitionSchemeStatuses
     {
         Open,
-        Closed
+        Closed,
+        InProgress,
+        StoppedProgress
     }
 }

@@ -16,5 +16,6 @@ namespace SIT.Data.Interfaces
         void Insert(TEntity entity);
         void Delete(TEntity entity);
         void Update(TEntity entity);
+        int Count();
     }
 }

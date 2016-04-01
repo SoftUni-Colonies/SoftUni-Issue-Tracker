@@ -73,5 +73,10 @@ namespace SIT.Data.Repositories
             dbSet.Attach(entityToUpdate);
             context.Entry(entityToUpdate).State = EntityState.Modified;
         }
+
+        public virtual int Count()
+        {
+            return dbSet.Count();
+        }
     }
 }

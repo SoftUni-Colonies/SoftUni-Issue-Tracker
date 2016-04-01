@@ -12,6 +12,7 @@ using SIT.Web.ViewModels.Issue;
 using System.Linq;
 using System.Linq.Dynamic;
 using AutoMapper.Internal;
+using Microsoft.AspNet.Mvc;
 using SIT.Web.BindingModels.Comment;
 using SIT.Web.BindingModels.Issue;
 using SIT.Web.ViewModels.Comment;
@@ -105,7 +106,7 @@ namespace SIT.Web.Services
             return GetMappedIssueWithAvailableStatuses(issue);
         }
 
-        public IEnumerable<IssueViewModel> Get(string filter)
+        public IssueWithPagesViewModel Get(int pageSize, int pageNumber, string filter)
         {
             var issuesQuery = this.data.IssueRepository.Get()
                 .Include(i => i.Assignee)
@@ -120,11 +121,22 @@ namespace SIT.Web.Services
                 issuesQuery = issuesQuery.Where(filter);
             }
 
-            var issues = issuesQuery.ToList();
-            return GetMappedIssuesWithAvailableStatuses(issues);
+            var totalCount = issuesQuery.Count();
+            var totalPages = Math.Ceiling((double)totalCount / pageSize);
+
+            var issues = issuesQuery.Skip((pageNumber - 1) * pageSize)
+                            .Take(pageSize)
+                            .ToList();
+            var mappedIssues = GetMappedIssuesWithAvailableStatuses(issues);
+
+            return new IssueWithPagesViewModel()
+            {
+                TotalPages = totalPages,
+                Issues = mappedIssues
+            };
         }
 
-        public IEnumerable<IssueViewModel> GetUserIssues(string userId, string orderBy)
+        public IssueWithPagesViewModel GetUserIssues(string userId, int pageSize, int pageNumber, string orderBy)
         {
             var issuesQuery = this.data.IssueRepository.Get(i => i.AssigneeId == userId)
                 .Include(i => i.Assignee)
@@ -139,8 +151,19 @@ namespace SIT.Web.Services
                 issuesQuery = issuesQuery.OrderBy(orderBy);
             }
 
-            var issues = issuesQuery.ToList();
-            return GetMappedIssuesWithAvailableStatuses(issues);
+            var totalCount = issuesQuery.Count();
+            var totalPages = Math.Ceiling((double)totalCount / pageSize);
+
+            var issues = issuesQuery.Skip((pageNumber - 1) * pageSize)
+                            .Take(pageSize)
+                            .ToList();
+            var mappedIssues = GetMappedIssuesWithAvailableStatuses(issues);
+
+            return new IssueWithPagesViewModel()
+            {
+                TotalPages = totalPages,
+                Issues = mappedIssues
+            };
         }
 
         public IEnumerable<IssueViewModel> GetProjectIssues(int projectId)
@@ -226,6 +249,12 @@ namespace SIT.Web.Services
 
         public IEnumerable<CommentViewModel> GetIssueComments(int id)
         {
+            var issue = this.data.IssueRepository.GetById(id).FirstOrDefault();
+            if (issue == null)
+            {
+                throw new ArgumentException(Constants.UnexistingIssueErrorMessage);
+            }
+
             var comments = this.data.CommentRepository.Get(c => c.IssueId == id)
                 .Include(c => c.Author)
                 .ToList();
@@ -277,13 +306,13 @@ namespace SIT.Web.Services
                 st => st.TransitionScheme.Id == transitionSchemeId)
                 .Select(st => st.ChildStatusId)
                 .ToList();
-            var parentStatus =
+            var rootStatus =
                 this.data.StatusTransitionRepository.Get(st => st.TransitionSchemeId == transitionSchemeId
-                                                               && !allStatusesChildColumn.Contains(st.Id))
+                                                               && !allStatusesChildColumn.Contains(st.ParentStatusId))
                     .Select(st => st.ParentStatus)
                     .FirstOrDefault();
 
-            issue.Status = parentStatus;
+            issue.Status = rootStatus;
         }
 
         private IEnumerable<IssueViewModel> GetMappedIssuesWithAvailableStatuses(List<Issue> issues)

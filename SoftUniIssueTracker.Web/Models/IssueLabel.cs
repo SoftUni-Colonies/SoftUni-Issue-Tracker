@@ -7,6 +7,7 @@ namespace SIT.Models
     {
         [Key]
         public int Id { get; set; }
+
         public int IssueId { get; set; }
         public virtual Issue Issue { get; set; }
 

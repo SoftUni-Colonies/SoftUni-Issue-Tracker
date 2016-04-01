@@ -38,6 +38,7 @@ namespace SIT.Web
               opts => opts.MapFrom(src => src.Label.Id));
             CreateMap<CommentBindingModel, Comment>();
             CreateMap<Comment, CommentViewModel>();
+            CreateMap<Project, ProjectIssueViewModel>();
         }
     }
 }

@@ -8,7 +8,7 @@ using SIT.Data;
 namespace SoftUniIssueTracker.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20160330133447_defaultMigration")]
+    [Migration("20160331115444_defaultMigration")]
     partial class defaultMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
