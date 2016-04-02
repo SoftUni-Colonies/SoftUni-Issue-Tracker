@@ -97,6 +97,7 @@ namespace SIT.Web.Services
         public ProjectViewModel GetById(int id)
         {
             var project = this.data.ProjectRepository.GetById(id)
+                .Include(p => p.Lead)
                 .Include(p => p.ProjectLabels)
                 .ThenInclude(p => p.Label)
                 .Include(p => p.ProjectPriorities)

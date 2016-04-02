@@ -74,7 +74,7 @@ namespace SIT.Web
                 //options.Filters.Add(new CorsAuthorizationFilterFactory("AllowAll"));
             });
 
-            services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin()));
+            services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();

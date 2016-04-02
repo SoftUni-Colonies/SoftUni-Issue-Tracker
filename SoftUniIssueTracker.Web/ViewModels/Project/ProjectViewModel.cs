@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using SIT.Models;
 using SIT.Web.ViewModels.Label;
 using SIT.Web.ViewModels.Priority;
+using SIT.Web.ViewModels.User;
 
 namespace SIT.Web.ViewModels.Project
 {
@@ -18,7 +19,7 @@ namespace SIT.Web.ViewModels.Project
 
         public string Description { get; set; }
 
-        public string LeadId { get; set; }
+        public UserViewModel Lead { get; set; }
 
         public int TransitionSchemeId { get; set; }
 

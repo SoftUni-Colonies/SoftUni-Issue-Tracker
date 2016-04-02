@@ -275,6 +275,10 @@ namespace SIT.Web.Services
         //TODO: Extract method in base class because it is duplicated in the ProjectService
         private void AddLabels(IEnumerable<Label> labels, Issue issue)
         {
+            if (labels == null)
+            {
+                return;
+            }
             foreach (var label in labels)
             {
                 var labelEntity = this.data.LabelRepository.Get(l => l.Name == label.Name).FirstOrDefault();
