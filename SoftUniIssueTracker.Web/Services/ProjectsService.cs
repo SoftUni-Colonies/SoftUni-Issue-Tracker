@@ -35,7 +35,8 @@ namespace SIT.Web.Services
             project.LeadId = authorId;
 
             AddTransitionScheme(model.TransitionSchemeId, project);
-            AddLabels(model.Labels, project);
+            if (model.Labels != null)
+                AddLabels(model.Labels, project);
             AddPriorities(model.Priorities, project);
 
             this.data.ProjectRepository.Insert(project);
@@ -61,21 +62,28 @@ namespace SIT.Web.Services
             project.Description = model.Description;
             project.LeadId = model.LeadId;
 
-            var labels = this.data.ProjectLabelsRepository.Get().Where(pl => pl.ProjectId == project.Id);
-            foreach (var projectLabel in labels)
+            if (model.Labels != null)
             {
-                this.data.ProjectLabelsRepository.Delete(projectLabel);
+                var labels = this.data.ProjectLabelsRepository.Get().Where(pl => pl.ProjectId == project.Id);
+                foreach (var projectLabel in labels)
+                {
+                    this.data.ProjectLabelsRepository.Delete(projectLabel);
+                }
+
+                AddLabels(model.Labels, project);
             }
 
-            var priorities = this.data.ProjectPrioritiesRepository.Get().Where(pl => pl.ProjectId == project.Id);
-            foreach (var priority in priorities)
+            if (model.Priorities != null)
             {
-                this.data.ProjectPrioritiesRepository.Delete(priority);
-            }
+                var priorities = this.data.ProjectPrioritiesRepository.Get().Where(pl => pl.ProjectId == project.Id);
+                foreach (var priority in priorities)
+                {
+                    this.data.ProjectPrioritiesRepository.Delete(priority);
+                }
 
+                AddPriorities(model.Priorities, project);
+            }
             AddTransitionScheme(model.TransitionSchemeId, project);
-            AddLabels(model.Labels, project);
-            AddPriorities(model.Priorities, project);
 
             this.data.Save();
 

@@ -16,6 +16,7 @@ using Microsoft.AspNet.Mvc;
 using SIT.Web.BindingModels.Comment;
 using SIT.Web.BindingModels.Issue;
 using SIT.Web.ViewModels.Comment;
+using SIT.Web.ViewModels.Label;
 using SIT.Web.ViewModels.Status;
 
 //using System.Linq.Dynamic;
@@ -39,6 +40,7 @@ namespace SIT.Web.Services
 
             var issueProject = this.data.ProjectRepository.GetById(issue.ProjectId)
                 .Include(p => p.Issues)
+                .Include(i => i.ProjectLabels)
                 .Include(p => p.ProjectPriorities)
                 .ThenInclude(pp => pp.Priority)
                 .FirstOrDefault();
@@ -63,9 +65,12 @@ namespace SIT.Web.Services
 
             var projectIssuesCount = issueProject.Issues.Count;
             issue.IssueKey = issueProject.ProjectKey + "-" + ++projectIssuesCount;
+
             issue.AuthorId = authorId;
-            AddLabels(model.Labels, issue);
             SelectParentStatusInTransitionScheme(issueProject.TransitionSchemeId, issue);
+
+            if (model.Labels != null)
+                AddLabels(model.Labels, issue);
 
             this.data.IssueRepository.Insert(issue);
             this.data.Save();
@@ -93,14 +98,16 @@ namespace SIT.Web.Services
             issue.PriorityId = model.PriorityId;
             issue.DueDate = model.DueDate;
 
-            var labels = this.data.IssueLabelsRepository.Get(il => il.IssueId == issue.Id).ToList();
-            foreach (var issueLabel in labels)
+            if (model.Labels != null)
             {
-                this.data.IssueLabelsRepository.Delete(issueLabel);
+                var labels = this.data.IssueLabelsRepository.Get(il => il.IssueId == issue.Id).ToList();
+                foreach (var issueLabel in labels)
+                {
+                    this.data.IssueLabelsRepository.Delete(issueLabel);
+                }
+
+                AddLabels(model.Labels, issue);
             }
-
-            AddLabels(model.Labels, issue);
-
             this.data.Save();
 
             return GetMappedIssueWithAvailableStatuses(issue);
@@ -114,6 +121,8 @@ namespace SIT.Web.Services
                 .Include(i => i.Priority)
                 .Include(i => i.Status)
                 .Include(i => i.Project)
+                .Include(i => i.IssueLabels)
+                .ThenInclude(il => il.Label)
                 .AsQueryable();
 
             if (filter != null)
@@ -144,6 +153,8 @@ namespace SIT.Web.Services
                 .Include(i => i.Priority)
                 .Include(i => i.Status)
                 .Include(i => i.Project)
+                .Include(i => i.IssueLabels)
+                .ThenInclude(il => il.Label)
                 .AsQueryable();
 
             if (orderBy != null)
@@ -174,6 +185,8 @@ namespace SIT.Web.Services
                 .Include(i => i.Priority)
                 .Include(i => i.Status)
                 .Include(i => i.Project)
+                .Include(i => i.IssueLabels)
+                .ThenInclude(il => il.Label)
                 .ToList();
 
             return GetMappedIssuesWithAvailableStatuses(issues);
@@ -187,6 +200,8 @@ namespace SIT.Web.Services
                 .Include(i => i.Priority)
                 .Include(i => i.Status)
                 .Include(i => i.Project)
+                .Include(i => i.IssueLabels)
+                .ThenInclude(il => il.Label)
                 .FirstOrDefault();
             if (issue == null)
             {
@@ -275,10 +290,6 @@ namespace SIT.Web.Services
         //TODO: Extract method in base class because it is duplicated in the ProjectService
         private void AddLabels(IEnumerable<Label> labels, Issue issue)
         {
-            if (labels == null)
-            {
-                return;
-            }
             foreach (var label in labels)
             {
                 var labelEntity = this.data.LabelRepository.Get(l => l.Name == label.Name).FirstOrDefault();
@@ -326,6 +337,8 @@ namespace SIT.Web.Services
             for (int i = 0; i < issues.Count; i++)
             {
                 mappedIssues.ElementAt(i).AvailableStatuses = availableStatuses.ElementAt(i);
+                mappedIssues.ElementAt(i).Labels =
+                  this.mapper.Map<ICollection<IssueLabel>, ICollection<LabelViewModel>>(issues[i].IssueLabels);
             }
             return mappedIssues;
         }

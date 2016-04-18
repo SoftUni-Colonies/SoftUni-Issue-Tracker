@@ -36,6 +36,9 @@ namespace SIT.Web
             CreateMap<ProjectLabel, LabelViewModel>().ForMember(dest => dest.Name,
               opts => opts.MapFrom(src => src.Label.Name)).ForMember(dest => dest.Id,
               opts => opts.MapFrom(src => src.Label.Id));
+            CreateMap<IssueLabel, LabelViewModel>().ForMember(dest => dest.Name,
+             opts => opts.MapFrom(src => src.Label.Name)).ForMember(dest => dest.Id,
+             opts => opts.MapFrom(src => src.Label.Id));
             CreateMap<CommentBindingModel, Comment>();
             CreateMap<Comment, CommentViewModel>();
             CreateMap<Project, ProjectIssueViewModel>();

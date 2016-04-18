@@ -25,6 +25,7 @@ namespace SIT.Web.BindingModels.Project
 
         public List<Label> Labels { get; set; } 
 
+        [Required]
         public List<Priority> Priorities { get; set; } 
     }
 }

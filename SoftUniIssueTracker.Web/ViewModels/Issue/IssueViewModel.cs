@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SIT.Models;
+using SIT.Web.ViewModels.Label;
 using SIT.Web.ViewModels.Priority;
 using SIT.Web.ViewModels.Project;
 using SIT.Web.ViewModels.Status;
@@ -20,6 +21,7 @@ namespace SIT.Web.ViewModels.Issue
         public UserViewModel Assignee { get; set; }
         public PriorityViewModel Priority { get; set; }
         public StatusViewModel Status { get; set; }
+        public IEnumerable<LabelViewModel> Labels { get; set; }
         public IEnumerable<StatusViewModel> AvailableStatuses { get; set; }
     }
 }
